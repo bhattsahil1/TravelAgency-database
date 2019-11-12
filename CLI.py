@@ -1,6 +1,15 @@
 import subprocess as sp
 import pymysql
 import pymysql.cursors
+def printTable(myDict, colList=None):
+   if not colList: colList = list(myDict[0].keys() if myDict else [])
+   myList = [colList] # 1st row = header
+   for item in myDict: myList.append([str(item[col] if item[col] is not None else '') for col in colList])
+   colSize = [max(map(len,col)) for col in zip(*myList)]
+   formatStr = ' | '.join(["{{:<{}}}".format(i) for i in colSize])
+   myList.insert(1, ['-' * i for i in colSize]) # Seperating line
+   for item in myList: print(formatStr.format(*item))
+
 def InsertGuide():
     try:
         # Takes emplyee details as input
@@ -32,12 +41,39 @@ def InsertGuide():
         
     return
 
-
+    
 def RemoveCustomer():
-    """
-    Function to fire a Tour_Guide
-    """
-    print("Not implemented")
+    try:
+        id = input("Enter the customer id of the customer to be removed.")
+        query1 = """
+        SELECT * FROM CUSTOMERS WHERE Sno = %s;
+        """
+        try:
+            cur.execute(query1,id)
+        except:
+            print("Error executing Search")
+        records = []
+        result = cur.fetchall()
+        if not result:
+            print("The customer does not exist in the database")
+        else:
+            # print("The customer exists in the database")
+            query2 = """
+            DELETE FROM CUSTOMERS WHERE Sno = %s;
+            """
+            try:
+                cur.execute(query2,id)
+                records = []
+                result = cur.fetchall()
+                for row in result:
+                    records.append(row)
+                printTable(records)
+                con.commit()
+                print("Successfully deleted the record")
+            except:
+                print("Error executing Deletion")
+    except:
+        print("Error deleting record")
 
 def promoteCustomer():
     """
@@ -57,8 +93,8 @@ def CustomerStatistics():
     # print("Not implemented")
     query = """
     SELECT * FROM CUSTOMERS 
-    INNER JOIN HOTEL_DETAILS ON CUSTOMERS.Sno=HOTEL_DETAILS.Sno
-    INNER JOIN FLIGHT_DETAILS ON CUSTOMERS.Sno = FLIGHT_DETAILS.Sno
+    LEFT JOIN HOTEL_DETAILS ON CUSTOMERS.Sno=HOTEL_DETAILS.Sno
+    LEFT JOIN FLIGHT_DETAILS ON CUSTOMERS.Sno = FLIGHT_DETAILS.Sno
     """
     print(query)
     cur.execute(query)
@@ -66,10 +102,8 @@ def CustomerStatistics():
     result = cur.fetchall()
     for row in result:
         records.append(row)
-        print(row)
-        # print(row/\)
         # print(row)
-
+    printTable(records)
 
 def InsertCustomer():
     try:
@@ -157,7 +191,7 @@ while(1):
             while(1):
                 tmp = sp.call('clear',shell=True)
                 print("1. Enter Tour Data")
-                # print("2. Remove Tour Data")
+                print("2. Remove Tour Data")
                 # print("3. ")
                 print("4. Customer Statistics")
                 print("5. Logout")
