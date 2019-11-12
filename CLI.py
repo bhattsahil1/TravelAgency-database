@@ -74,6 +74,10 @@ def RemoveCustomer():
                 print("Error executing Deletion")
     except:
         print("Error deleting record")
+    """
+    Function to fire a Customer
+    """
+    print("Not implemented")
 
 def promoteCustomer():
     """
