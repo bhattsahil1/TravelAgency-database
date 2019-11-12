@@ -4,7 +4,7 @@ import pymysql.cursors
 
 def RemoveCustomer():
     """
-    Function to fire an Customer
+    Function to fire a Customer
     """
     print("Not implemented")
 
