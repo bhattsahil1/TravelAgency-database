@@ -44,7 +44,7 @@ def InsertGuide():
     
 def RemoveCustomer():
     try:
-        id = input("Enter the customer id of the customer to be removed.")
+        id = input("Enter the customer id of the customer to be removed:")
         query1 = """
         SELECT * FROM CUSTOMERS WHERE Sno = %s;
         """
@@ -77,16 +77,67 @@ def RemoveCustomer():
     """
     Function to fire a Customer
     """
-    print("Not implemented")
+    # print("Not implemented")
 
-def promoteCustomer():
+def updateCustomer():
     """
     Function performs one of three jobs
     1. Increases salary
     2. Makes Customer a supervisor
     3. Makes Customer a manager
     """
-    print("Not implemented")
+    try:
+        id = input("Enter the customer id of the customer to update:")
+        query1 = """
+        SELECT * FROM CUSTOMERS WHERE Sno = %s;
+        """
+        try:
+            cur.execute(query1,id)
+        except:
+            print("Error executing Search")
+        records = []
+        result = cur.fetchall()
+        if not result:
+            print("The customer does not exist in the database")
+        else:
+            # print("The customer exists in the database")
+
+            row = {}
+            print("Enter new Customer's details: ")
+            name = (input("Name (Fname Minit Lname): ")).split(' ')
+            row["Fname"] = name[0]
+            row["Mname"] = name[1]
+            row["Lname"] = name[2]
+            row["Start_date"] = input("Start Date (YYYY-MM-DD): ")
+            row["Last_date"] = input("End Date (YYYY-MM-DD): ")
+            row["HNo"] = int(input("House No: "))
+            row["City"] = input("City: ")
+            row["DOB"] = input("Date of Birth (YYYY-MM-DD): ")
+            row["No_of_travellers"] = int(input("Number of travellers: "))
+
+            query2 = """
+            UPDATE CUSTOMERS SET Fname='%s', Mname='%s', Lname='%s', Start_date='%s', Last_date='%s', HNo='%d', City='%s', DOB='%s', No_of_travellers='%d' WHERE Sno = '%s' ;
+            """%(row["Fname"], row["Mname"], row["Lname"], row["Start_date"], row["Last_date"], row["HNo"], row["City"], row["DOB"], row["No_of_travellers"],id)
+            try:
+                print(query2)
+                cur.execute(query2)
+                records = []
+                result = cur.fetchall()
+                for row in result:
+                    records.append(row)
+                printTable(records)
+                con.commit()
+                print("Successfully updated the record")
+            except:
+                print("Error executing Update")
+    except:
+        print("Error updating record")
+    """
+    Function to update a Customer's details
+    """
+    # print("Not implemented")
+
+    # print("Not implemented")
 
 
 def CustomerStatistics():
@@ -161,7 +212,7 @@ def dispatch(ch):
     elif(ch==2):
         RemoveCustomer()
     elif(ch==3):
-        promoteCustomer()
+        updateCustomer()
     elif(ch==4):
         CustomerStatistics()
     elif(ch==6):
@@ -196,7 +247,7 @@ while(1):
                 tmp = sp.call('clear',shell=True)
                 print("1. Enter Tour Data")
                 print("2. Remove Tour Data")
-                # print("3. ")
+                print("3. Update Tour Data")
                 print("4. Customer Statistics")
                 print("5. Logout")
                 print("6. Enter Tour Guide data")
@@ -217,6 +268,4 @@ while(1):
     if k==5:
         break
     
-   
-
-
+  
