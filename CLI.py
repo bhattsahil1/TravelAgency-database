@@ -1,6 +1,7 @@
 import subprocess as sp
 import pymysql
 import pymysql.cursors
+
 def printTable(myDict, colList=None):
    if not colList: colList = list(myDict[0].keys() if myDict else [])
    myList = [colList] # 1st row = header
@@ -10,9 +11,31 @@ def printTable(myDict, colList=None):
    myList.insert(1, ['-' * i for i in colSize]) # Seperating line
    for item in myList: print(formatStr.format(*item))
 
+def viewtable():
+
+    print("LIST OF ALL TABLES")
+    print("1. CUSTOMERS")
+    print("2. CUSTOMER_PACKAGE")
+    print("3. FLIGHT_DETAILS")
+    print("4. HOTELS")
+    print("5. HOTEL_DETAILS")
+    print("6. PACKAGE")
+    print("7. TOUR_GUIDE")
+    print("8. TRANSPORTATION")
+    tablist = ["CUSTOMERS","CUSTOMER_PACKAGE","FLIGHT_DETAILS","HOTELS","HOTEL_DETAILS","PACKAGE","TOUR_GUIDE","TRANSPORTATION"]
+    cxe = int(input("Enter choice> "))
+    query = "SELECT * FROM " + tablist[cxe-1]
+    cur.execute(query)
+    records = []
+    result = cur.fetchall()
+    for row in result:
+        records.append(row)
+    printTable(records)
+
+
+
 def InsertGuide():
     try:
-        # Takes emplyee details as input
         row = {}
         print("Enter new Tour Guide details: ")
         name = (input("Name: "))
@@ -21,8 +44,6 @@ def InsertGuide():
 
         """
         In addition to taking input, you are required to handle domain errors as well
-
-
         HINT: Instead of handling all these errors yourself, you can make use of except clause to print the error returned to you by MySQL
         """
 
@@ -178,12 +199,9 @@ def InsertCustomer():
 
         """
         In addition to taking input, you are required to handle domain errors as well
-
         For example: the SSN should be only 9 characters long
         Sex should be only M or F
-
         If you choose to take Super_SSN, you need to make sure the foreign key constraint is satisfied
-
         HINT: Instead of handling all these errors yourself, you can make use of except clause to print the error returned to you by MySQL
         """
 
@@ -217,6 +235,8 @@ def dispatch(ch):
         CustomerStatistics()
     elif(ch==6):
         InsertGuide()
+    elif(ch==7):
+        viewtable()
     else:
         print("Error: Invalid Option")
 
@@ -251,6 +271,7 @@ while(1):
                 print("4. Customer Statistics")
                 print("5. Logout")
                 print("6. Enter Tour Guide data")
+                print("7. View all tables")
                 ch = int(input("Enter choice> "))
                 tmp = sp.call('clear',shell=True)
                 if ch==5:
@@ -267,5 +288,3 @@ while(1):
         tmp = input("Enter any key to CONTINUE>")
     if k==5:
         break
-    
-  
