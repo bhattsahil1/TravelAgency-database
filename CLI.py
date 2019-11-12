@@ -24,7 +24,7 @@ def CustomerStatistics():
     the tour details of the customer.
     """
     # print("Not implemented")
-    query = "SELECT * FROM CUSTOMERS INNER JOIN FLIGHTS ON CUSTOMERS.SNo=FLIGHTS.SNo"
+    query = "SELECT * FROM CUSTOMERS INNER JOIN FLIGHTS ON CUSTOMERS.Sno=FLIGHTS.Sno"
     print(query)
     cur.execute(query)
     records = []
@@ -120,7 +120,7 @@ while(1):
                 print("1. Enter Tour Data")
                 # print("2. Remove Tour Data")
                 # print("3. ")
-                # print("4. Customer Statistics")
+                print("4. Customer Statistics")
                 print("2. Logout")
                 ch = int(input("Enter choice> "))
                 tmp = sp.call('clear',shell=True)
