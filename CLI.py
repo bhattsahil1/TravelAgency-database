@@ -41,12 +41,12 @@ def InsertGuide():
         
     return
 
-    
+
 def RemoveCustomer():
     try:
         id = input("Enter the customer id of the customer to be removed.")
         query1 = """
-        SELECT * FROM CUSTOMERS WHERE Sno = %s;
+        SELECT * FROM TOUR WHERE Sno = %s;
         """
         try:
             cur.execute(query1,id)
@@ -74,6 +74,52 @@ def RemoveCustomer():
                 print("Error executing Deletion")
     except:
         print("Error deleting record")
+    
+def RemoveTourguide():
+    try:
+        id = input("Enter the Tour guide id of the Tour Guide to be removed.")
+        query1 = """
+        SELECT * FROM TOUR_GUIDE WHERE Tourguide_id = %s;
+        """
+        try:
+            cur.execute(query1,id)
+        except:
+            print("Error executing Search")
+        records = []
+        result = cur.fetchall()
+        if not result:
+            print("The Tour guide does not exist in the database")
+        else:
+            # print("The customer exists in the database")
+            query2 = """
+            DELETE FROM TOUR_GUIDE WHERE Tourguide_id = %s;
+            """
+            try:
+                cur.execute(query2,id)
+                records = []
+                result = cur.fetchall()
+                for row in result:
+                    records.append(row)
+                printTable(records)
+                con.commit()
+                print("Successfully deleted the record")
+            except:
+                print("Error executing Deletion")
+    except:
+        print("Error deleting record")
+def TourGuidestats():
+    query = """
+    SELECT * FROM CUSTOMERS 
+    LEFT JOIN HOTEL_DETAILS ON CUSTOMERS.Sno=HOTEL_DETAILS.Sno
+    LEFT JOIN FLIGHT_DETAILS ON CUSTOMERS.Sno = FLIGHT_DETAILS.Sno
+    """
+    print(query)
+    cur.execute(query)
+    records = []
+    result = cur.fetchall()
+    for row in result:
+        records.append(row)
+        # print(row)
 
 def promoteCustomer():
     """
@@ -92,7 +138,7 @@ def CustomerStatistics():
     """
     # print("Not implemented")
     query = """
-    SELECT * FROM CUSTOMERS 
+    SELECT * FROM TOUR_GUIDE 
     LEFT JOIN HOTEL_DETAILS ON CUSTOMERS.Sno=HOTEL_DETAILS.Sno
     LEFT JOIN FLIGHT_DETAILS ON CUSTOMERS.Sno = FLIGHT_DETAILS.Sno
     """
