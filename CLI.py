@@ -10,6 +10,51 @@ def printTable(myDict, colList=None):
    formatStr = ' | '.join(["{{:<{}}}".format(i) for i in colSize])
    myList.insert(1, ['-' * i for i in colSize]) # Seperating line
    for item in myList: print(formatStr.format(*item))
+def updateTourguide():
+    try:
+        id = input("Enter the Tourguide id of the Tourguide to update:")
+        query1 = """
+        SELECT * FROM TOUR_GUIDE WHERE Tourguide_id = %s;
+        """
+        try:
+            cur.execute(query1,id)
+        except:
+            print("Error executing Search")
+        records = []
+        result = cur.fetchall()
+        if not result:
+            print("The Tour guide does not exist in the database")
+        else:
+            # print("The customer exists in the database")
+
+            row = {}
+            print("Enter new Tour guide details: ")
+            row["Name"] = (input("Name: "))
+            row["Dob"] = input("Date of Birth (YYYY-MM-DD): ")
+
+            query2 = """
+            UPDATE TOUR_GUIDE SET Tourguide_name='%s' , Dob='%s' WHERE Tourguide_id = '%s' ;
+            """%(row["Name"], row["Dob"], id)
+            try:
+                print(query2)
+                try:
+                    cur.execute(query2)
+                except:
+                    print("SQL execution")
+                records = []
+                result = cur.fetchall()
+                for row in result:
+                    records.append(row)
+                printTable(records)
+                con.commit()
+                print("Successfully updated the record")
+            except:
+                print("Error executing Update")
+    except:
+        print("Error updating record")
+    """
+    Function to update a Customer's details
+    """
 
 def viewtable():
 
@@ -269,8 +314,10 @@ def dispatch(ch):
         InsertGuide()
     elif(ch==7):
         viewtable()
-    elif(ch==10)
+    elif(ch==10):
         RemoveTourguide()
+    elif(ch==11):
+        updateTourguide()
     else:
         print("Error: Invalid Option")
 
@@ -306,6 +353,8 @@ while(1):
                 print("5. Logout")
                 print("6. Enter Tour Guide data")
                 print("7. View all tables")
+                print("10. Remove Tour Guide")
+                print("11. Update Tour Guide")
                 ch = int(input("Enter choice> "))
                 tmp = sp.call('clear',shell=True)
                 if ch==5:
