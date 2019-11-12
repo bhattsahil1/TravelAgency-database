@@ -24,7 +24,7 @@ def CustomerStatistics():
     the tour details of the customer.
     """
     # print("Not implemented")
-    query = "SELECT * FROM CUSTOMERS"
+    query = "SELECT * FROM CUSTOMERS INNER JOIN FLIGHTS ON CUSTOMERS.SNo=FLIGHTS.SNo"
     print(query)
     cur.execute(query)
     records = []
