@@ -1,10 +1,41 @@
 import subprocess as sp
 import pymysql
 import pymysql.cursors
+def InsertGuide():
+    try:
+        # Takes emplyee details as input
+        row = {}
+        print("Enter new Tour Guide details: ")
+        name = (input("Name: "))
+        row["Tourguide_name"] = name
+        row["Dob"] = input("Date of Birth (YYYY-MM-DD): ")
+
+        """
+        In addition to taking input, you are required to handle domain errors as well
+
+
+        HINT: Instead of handling all these errors yourself, you can make use of except clause to print the error returned to you by MySQL
+        """
+
+        query = "INSERT INTO TOUR_GUIDE(Tourguide_name,Dob) VALUES('%s', '%s')" %(row["Tourguide_name"] ,row["Dob"])
+
+        print(query)
+        cur.execute(query)
+        con.commit()
+
+        print("Inserted Into Database")
+
+    except Exception as e:
+        con.rollback()
+        print("Failed to insert into database")
+        print (">>>>>>>>>>>>>", e)
+        
+    return
+
 
 def RemoveCustomer():
     """
-    Function to fire an Customer
+    Function to fire a Tour_Guide
     """
     print("Not implemented")
 
@@ -24,7 +55,11 @@ def CustomerStatistics():
     the tour details of the customer.
     """
     # print("Not implemented")
-    query = "SELECT * FROM CUSTOMERS INNER JOIN FLIGHTS ON CUSTOMERS.Sno=FLIGHTS.Sno"
+    query = """
+    SELECT * FROM CUSTOMERS 
+    INNER JOIN HOTEL_DETAILS ON CUSTOMERS.Sno=HOTEL_DETAILS.Sno
+    INNER JOIN FLIGHT_DETAILS ON CUSTOMERS.Sno = FLIGHT_DETAILS.Sno
+    """
     print(query)
     cur.execute(query)
     records = []
@@ -32,7 +67,8 @@ def CustomerStatistics():
     for row in result:
         records.append(row)
         print(row)
-
+        # print(row/\)
+        # print(row)
 
 
 def InsertCustomer():
@@ -90,10 +126,13 @@ def dispatch(ch):
         promoteCustomer()
     elif(ch==4):
         CustomerStatistics()
+    elif(ch==6):
+        InsertGuide()
     else:
         print("Error: Invalid Option")
 
 # Global
+k=0
 while(1):
     tmp = sp.call('clear',shell=True)
     username = input("Username: ")
@@ -121,10 +160,12 @@ while(1):
                 # print("2. Remove Tour Data")
                 # print("3. ")
                 print("4. Customer Statistics")
-                print("2. Logout")
+                print("5. Logout")
+                print("6. Enter Tour Guide data")
                 ch = int(input("Enter choice> "))
                 tmp = sp.call('clear',shell=True)
                 if ch==5:
+                    k=5
                     break
                 else:
                     dispatch(ch)
@@ -135,6 +176,8 @@ while(1):
         tmp = sp.call('clear',shell=True)
         print("Connection Refused: Either username or password is incorrect or user doesn't have access to database")
         tmp = input("Enter any key to CONTINUE>")
+    if k==5:
+        break
     
    
 
