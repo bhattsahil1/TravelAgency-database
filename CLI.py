@@ -1,6 +1,7 @@
 import subprocess as sp
 import pymysql
 import pymysql.cursors
+from datetime import datetime
 
 def printTable(myDict, colList=None):
    if not colList: colList = list(myDict[0].keys() if myDict else [])
@@ -213,7 +214,12 @@ def viewtable():
     print("6. PACKAGE")
     print("7. TOUR_GUIDE")
     print("8. TRANSPORTATION")
-    tablist = ["CUSTOMERS","CUSTOMER_PACKAGE","FLIGHT_DETAILS","HOTELS","HOTEL_DETAILS","PACKAGE","TOUR_GUIDE","TRANSPORTATION"]
+    print("9. MEDICINE")
+    print("10. SPECIAL_REQUESTS")
+    print("11. EMERGENCY_CONTACT")
+    print("12. LANGUAGES_SPOKEN")
+    print("13. AREA_OF_EXPERTISE")
+    tablist = ["CUSTOMERS","CUSTOMER_PACKAGE","FLIGHT_DETAILS","HOTELS","HOTEL_DETAILS","PACKAGE","TOUR_GUIDE","TRANSPORTATION","MEDICINE","SPECIAL_REQUESTS","EMERGENCY_CONTACT","LANGUAGES_SPOKEN","AREA_OF_EXPERTISE"]
     cxe = int(input("Enter choice> "))
     query = "SELECT * FROM " + tablist[cxe-1]
     cur.execute(query)
@@ -421,7 +427,7 @@ def enterEdetails():
         HINT: Instead of handling all these errors yourself, you can make use of except clause to print the error returned to you by MySQL
         """
 
-        query = "INSERT INTO EMERGENCY_DETAILS VALUES('%s','%s', '%s','%s')" %(id,row["Contact_Name"] ,row["Contact_Pno"],row["Address"])
+        query = "INSERT INTO EMERGENCY_CONTACT VALUES('%s','%s', '%s','%s')" %(id,row["Contact_Name"] ,row["Contact_Pno"],row["Address"])
 
         print(query)
         cur.execute(query)
@@ -476,7 +482,9 @@ def enterSPneeds():
         child = (input("Is a child travelling with you? "))
         row["child_status"] = child
         row["Disability_status"] = input("Is a differently abled person travelling with you?  ")
-        row["Medicine"] = input("Do you need any medicines for your travel? ")  
+        medicine = input("Do you need any medicines for your travel? ").split()
+        n = len(medicine)
+
         """
         In addition to taking input, you are required to handle domain errors as well
         HINT: Instead of handling all these errors yourself, you can make use of except clause to print the error returned to you by MySQL
@@ -486,10 +494,12 @@ def enterSPneeds():
 
         print(query)
         cur.execute(query)
-        query= "INSERT INTO MEDICINE VALUES('%s','%s')" %(id,row["Medicine"])
-        print(query)
-        cur.execute(query)
-        con.commit()
+        
+        for i in range(n):
+            query= "INSERT INTO MEDICINE VALUES('%s','%s')" %(id,medicine[i])
+            print(query)
+            cur.execute(query)
+            con.commit()
         print("Inserted Special Requests and Medicine Details")
     except Exception as e:
         con.rollback()
@@ -497,7 +507,6 @@ def enterSPneeds():
         print (">>>>>>>>>>>>>", e)
         
     return
-
 
 def CustomerStatistics():
     """
@@ -558,6 +567,117 @@ def InsertCustomer():
         
     return
 
+def allocateguide():
+    try:
+        id = input("Enter customer ID: ")
+        query1 = """
+        SELECT * FROM CUSTOMERS WHERE CUSTOMERS.Sno = %s;
+        """
+        query2 = """
+        SELECT * FROM ALLOCATED_GUIDE WHERE ALLOCATED_GUIDE.Sno = %s;
+        """
+        try:
+            cur.execute(query1,id)
+        except:
+            print("Error executing Search")
+        result = cur.fetchall()
+        print(result)
+        if not result:
+            print("The customer does not exist in the database")
+            return
+        try:
+            cur.execute(query2,id)
+        except:
+            print("Error executing Search2")
+        result = cur.fetchall()
+        if result:
+            print("Customer has already entered his tour guide details")
+            return
+        else:
+            try:
+                print("Available Tour Guides")
+                try:
+                    cur.execute("SELECT * FROM LANGUAGES_SPOKEN LEFT JOIN AREA OF EXPERTISE ON LANGUAGES_SPOKEN.Tourguide_id = Area_of_expertise=Tourguide_id")
+                except:
+                    print("display err")
+                guiedes=[]
+                guidelist=cur.fetchall()
+                for row in guidelist:
+                    guides.append(row)
+                printTable(guides)
+                Guideid = input("Enter Tour Guide id ")
+                query3 = "INSERT INTO ALLOCATED_GUIDE(Sno,Tourguide_id) VALUES('%s', '%s')" %(id,Guideid)
+                try:
+                    cur.execute(query3)
+                except:
+                    print("Final execution err")
+                con.commit()
+                print("Successfully added the record")
+            except:
+                print("Error executing insertion")
+    except:
+        print("Error inserting record")
+
+
+
+def Bill():
+    id=input("Enter customer Id to bill:")
+    query="select Start_date,Last_date from CUSTOMERS WHERE CUSTOMERS.Sno =%s"
+    try:
+        cur.execute(query,id)
+        res = cur.fetchall()
+        x = res[0]
+        start = x.get("Start_date")
+        end  = x.get("Last_date")
+        query2 = """SELECT Package_type 
+        FROM PACKAGE JOIN CUSTOMER_PACKAGE ON PACKAGE_id = CUSTOMER_PACKAGE.Package_Opted 
+        WHERE CUSTOMER_PACKAGE.Sno = %s
+        """
+        cur.execute(query2,id)
+        newres = cur.fetchall()
+        y = newres[0]
+        print(start)
+        print(end)
+        print(y)
+        # rate = 1
+        ptype = y.get("Package_type")
+        if(ptype=="Economy"):
+            rate = 1
+        elif(ptype=="VIP"):
+            rate = 3
+        elif(ptype=="Premium"):
+            rate = 2
+        diff = end - start
+        difday = diff.days
+        print(diff.days)
+        # # hotelcharge
+        charges = int(difday) * 1000
+        # # flightcharge
+        charges +=500
+        charges += (200 * rate)
+        print("FINAL BILL")
+        print(charges)
+
+    except:
+        print("error")
+    return
+
+def Languages():
+    try:
+        id=input("Enter tour guide id: ")
+        lang = input("Enter the languages spoken").split(' ')
+        n = len(lang)
+        for i in range(n):
+            query = "INSERT INTO LANGUAGES_SPOKEN(Tourguide_id , Languages_spoken) VALUES('%s','%s')" %(id,lang[i])
+            try:
+                cur.execute(query)
+            except:
+                print("SQL error")
+            con.commit()
+        print("Successfully updated Languages_spoken")
+    except:
+        print("Error inserting languages")
+
 def enterflight():
     try:
         id = input("Enter the customer id of the customer to allot flight:")
@@ -593,6 +713,18 @@ def enterflight():
 
     return
 
+def Expertise():
+    try:
+        id=input("Enter tour guide id")
+        area = input("Enter the areas of expertise").split(' ')
+        n = len(area)
+        for i in range(n):
+            query = "INSERT INTO AREA_OF_EXPERTISE(Sno , Area_of_expertise) VALUES('%s','%s')" %(id,area[i])
+            cur.execute(query)
+            con.commit()
+        print("Successfully updated Areas Of expertise")
+    except:
+        print("Error inserting")
 
 def dispatch(ch):
     """
@@ -627,8 +759,15 @@ def dispatch(ch):
 	    enterEdetails()
     elif(ch==15):
 	    enterSPneeds()
-    # elif(ch==16):
-	#     billcustomer()
+    elif(ch==16):
+        allocateguide()
+        # Bill()
+    elif(ch==17):
+	    Bill()
+    elif(ch==18):
+        Languages()
+    elif(ch==19):
+        Expertise()
     else:
         print("Error: Invalid Option")
 
@@ -672,7 +811,10 @@ while(1):
                 print("13. Choose Flight")
                 print("14. Enter Emergency Details")
                 print("15. Enter Special Requests")
-                # print("16. Bill")
+                print("16. Choose Tour Guide")
+                print("17. Bill")
+                print("18. Insert Tour Guide Languages")
+                print("19. Insert Tour Guide Area of Expertise")
                 ch = int(input("Enter choice> "))
                 tmp = sp.call('clear',shell=True)
                 if ch==5:
