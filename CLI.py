@@ -211,7 +211,7 @@ def InsertCustomer():
         cur.execute(query)
         con.commit()
 
-        print("Inserted Into Database")
+        print("Inserted Into Database successfully")
 
     except Exception as e:
         con.rollback()
